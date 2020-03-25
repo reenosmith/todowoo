@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from .forms import TodoForm
+from .models import Todo
 
 def home(request):
     return render(request, 'todo/home.html')
@@ -36,7 +37,8 @@ def loginuser(request):
             return redirect('currenttodos')
 
 def currenttodos(request):
-    return render(request, 'todo/currenttodos.html')
+    todos = Todo.objects.filter(user=request.user, datecompleted__isnull=True)
+    return render(request, 'todo/currenttodos.html', {'todos':todos})
 
 def logoutuser(request):
     if request.method == 'POST':
@@ -54,4 +56,4 @@ def createtodo(request):
             newtodo.save()
             return redirect('currenttodos')
         except ValueError:
-            return render(request, 'todo/createtodo.html', {'form':TodoForm(), 'error':'Invalid Data Passed in!'})
+            return render(request, 'todo/createtodo.html', {'form':TodoForm(), 'error':'Invalid Data Passed in! Please try again.'})
